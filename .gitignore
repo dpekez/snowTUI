@@ -1,0 +1,23 @@
+# Config
+config.yaml
+
+# Claude
+.claude/
+
+# Logs
+logfile
+*.log
+
+# Build artifacts
+snowtui
+
+# OS
+.DS_Store
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
+*.iml

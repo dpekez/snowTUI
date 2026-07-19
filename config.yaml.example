@@ -1,0 +1,183 @@
+# ServiceNow TUI – Config File
+instances:
+  - name: "PDI"
+    url: "https://dev123456.service-now.com"
+    username: "user"
+    password: "pw"
+
+  - name: "production"
+    url: "https://mycompany.service-now.com"
+    api_key: "your-api-key"
+
+# Tables shown in the table browser, and how each one is displayed in the
+# record list view (list.columns) and the record detail view
+# (record.important_fields). Fields not listed here are still visible: list
+# columns fall back to the record's own fields, and the detail view always
+# shows every field beneath the "Important Fields" section.
+tables:
+  - name: "incident"
+    description: "IT incidents and outages"
+    list:
+      columns: ["number", "short_description", "state", "priority", "impact",
+                "urgency", "category", "assigned_to", "caller_id", "sys_updated_on", "active"]
+    record:
+      important_fields: ["number", "sys_id", "short_description", "description",
+                          "state", "priority", "impact", "urgency", "category", "subcategory",
+                          "assigned_to", "assignment_group", "caller_id", "opened_by",
+                          "opened_at", "resolved_at", "closed_at",
+                          "sys_created_on", "sys_updated_on", "active", "escalation"]
+
+  - name: "cmdb_ci"
+    description: "Configuration items"
+    list:
+      columns: ["name", "fqdn", "ip_address", "mac_address", "sys_class_name", "operational_status", "category",
+                "location", "assigned_to", "sys_updated_on"]
+    record:
+      important_fields: ["name", "sys_id", "sys_class_name", "category", "subcategory",
+                          "operational_status", "install_status", "location",
+                          "assigned_to", "owned_by", "sys_created_on", "sys_updated_on"]
+
+  - name: "change_request"
+    description: "Change management requests"
+    list:
+      columns: ["number", "short_description", "state", "priority", "risk",
+                "category", "assigned_to", "assignment_group", "sys_updated_on", "active"]
+    record:
+      important_fields: ["number", "sys_id", "short_description", "description",
+                          "state", "priority", "risk", "impact", "category",
+                          "assigned_to", "assignment_group", "requested_by",
+                          "start_date", "end_date", "sys_created_on", "sys_updated_on", "active"]
+
+  - name: "problem"
+    description: "Problem records"
+    list:
+      columns: ["number", "short_description", "state", "priority", "impact",
+                "urgency", "assigned_to", "assignment_group", "sys_updated_on", "active"]
+    record:
+      important_fields: ["number", "sys_id", "short_description", "description",
+                          "state", "priority", "impact", "urgency",
+                          "assigned_to", "assignment_group", "opened_by",
+                          "opened_at", "resolved_at", "sys_created_on", "sys_updated_on", "active"]
+
+  - name: "sc_request"
+    description: "Service catalog requests"
+    list:
+      columns: ["number", "short_description", "state", "priority", "requested_for",
+                "assigned_to", "sys_updated_on", "active"]
+    record:
+      important_fields: ["number", "sys_id", "short_description", "description",
+                          "state", "priority", "requested_for", "requested_by",
+                          "assigned_to", "assignment_group",
+                          "opened_at", "closed_at", "sys_created_on", "sys_updated_on", "active"]
+
+  - name: "sc_req_item"
+    description: "Requested items"
+    list:
+      columns: ["number", "short_description", "state", "stage", "request",
+                "assigned_to", "sys_updated_on", "active"]
+    record:
+      important_fields: ["number", "sys_id", "short_description", "description",
+                          "state", "stage", "request", "cat_item",
+                          "assigned_to", "assignment_group",
+                          "opened_at", "closed_at", "sys_created_on", "sys_updated_on", "active"]
+
+  - name: "sc_task"
+    description: "Service catalog tasks"
+    list:
+      columns: ["number", "short_description", "state", "priority", "request_item",
+                "assigned_to", "sys_updated_on", "active"]
+    record:
+      important_fields: ["number", "sys_id", "short_description", "description",
+                          "state", "priority", "request_item",
+                          "assigned_to", "assignment_group",
+                          "opened_at", "closed_at", "sys_created_on", "sys_updated_on", "active"]
+
+  - name: "task"
+    description: "Generic tasks"
+    list:
+      columns: ["number", "short_description", "state", "priority", "category",
+                "assigned_to", "sys_updated_on", "active"]
+    record:
+      important_fields: ["number", "sys_id", "short_description", "description",
+                          "state", "priority", "impact", "urgency", "category",
+                          "assigned_to", "assignment_group", "opened_by",
+                          "opened_at", "closed_at", "sys_created_on", "sys_updated_on", "active"]
+
+  - name: "sys_user"
+    description: "Users"
+    list:
+      columns: ["user_name", "name", "email", "department", "title", "active"]
+    record:
+      important_fields: ["user_name", "sys_id", "first_name", "last_name", "email",
+                          "title", "department", "manager", "phone", "active", "locked_out"]
+
+  - name: "sys_user_group"
+    description: "User groups"
+    list:
+      columns: ["name", "description", "manager", "type", "active"]
+    record:
+      important_fields: ["name", "sys_id", "description", "manager", "type", "active"]
+
+  - name: "kb_knowledge"
+    description: "Knowledge base articles"
+    list:
+      columns: ["number", "short_description", "kb_category", "workflow_state",
+                "published", "sys_updated_on"]
+    record:
+      important_fields: ["number", "sys_id", "short_description", "kb_category",
+                          "workflow_state", "published", "valid_to",
+                          "sys_created_on", "sys_updated_on"]
+
+  - name: "alm_asset"
+    description: "Assets"
+    list:
+      columns: ["asset_tag", "display_name", "model", "state", "assigned_to", "location"]
+    record:
+      important_fields: ["asset_tag", "sys_id", "display_name", "model", "model_category",
+                          "state", "assigned_to", "location", "install_status", "sys_updated_on"]
+
+  - name: "alm_hardware"
+    description: "Hardware assets"
+    list:
+      columns: ["asset_tag", "display_name", "model", "state", "assigned_to", "location"]
+    record:
+      important_fields: ["asset_tag", "sys_id", "display_name", "model", "model_category",
+                          "state", "assigned_to", "location", "install_status", "sys_updated_on"]
+
+  - name: "cmn_location"
+    description: "Locations"
+    list:
+      columns: ["name", "city", "state", "country", "street"]
+    record:
+      important_fields: ["name", "sys_id", "city", "state", "country", "street", "zip"]
+
+  - name: "core_company"
+    description: "Companies"
+    list:
+      columns: ["name", "phone", "website", "country"]
+    record:
+      important_fields: ["name", "sys_id", "phone", "website", "country", "notes"]
+
+  - name: "sysapproval_approver"
+    description: "Approvals"
+    list:
+      columns: ["sysapproval", "approver", "state", "comments", "sys_updated_on"]
+    record:
+      important_fields: ["sysapproval", "sys_id", "approver", "state", "comments",
+                          "sys_created_on", "sys_updated_on"]
+
+  - name: "sn_chg_rest_change"
+    description: "Change (REST)"
+    list:
+      columns: ["number", "short_description", "state", "priority", "sys_updated_on"]
+    record:
+      important_fields: ["number", "sys_id", "short_description", "state",
+                          "priority", "sys_created_on", "sys_updated_on"]
+
+  - name: "sys_audit"
+    description: "Audit log"
+    list:
+      columns: ["tablename", "fieldname", "documentkey", "newvalue", "sys_created_on"]
+    record:
+      important_fields: ["tablename", "sys_id", "fieldname", "documentkey", "oldvalue",
+                          "newvalue", "reason", "sys_created_on", "sys_created_by"]
