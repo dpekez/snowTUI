@@ -43,9 +43,9 @@ func NewTableView(tables []config.TableConfig) TableView {
 
 	d := list.NewDefaultDelegate()
 	d.Styles.SelectedTitle = d.Styles.SelectedTitle.
-		Foreground(white).Background(purple).BorderForeground(purple)
+		Foreground(white).Background(green).BorderForeground(green)
 	d.Styles.SelectedDesc = d.Styles.SelectedDesc.
-		Foreground(lightGray).Background(purple).BorderForeground(purple)
+		Foreground(lightGray).Background(green).BorderForeground(green)
 	d.Styles.NormalTitle = d.Styles.NormalTitle.Foreground(lightGray)
 	d.Styles.NormalDesc = d.Styles.NormalDesc.Foreground(gray)
 
@@ -63,7 +63,7 @@ func NewTableView(tables []config.TableConfig) TableView {
 	ti.CharLimit = 100
 	ti.Width = 50
 	ti.Prompt = "▶  "
-	ti.PromptStyle = lipgloss.NewStyle().Foreground(purple)
+	ti.PromptStyle = lipgloss.NewStyle().Foreground(green)
 	ti.TextStyle = lipgloss.NewStyle().Foreground(white)
 
 	return TableView{mode: tableViewList, list: l, input: ti}
@@ -129,7 +129,7 @@ func (v TableView) View() string {
 			"",
 			v.input.View(),
 		)
-		box := boxStyle.Copy().Width(v.width/2).Render(content)
+		box := boxStyle.Copy().Width(v.width / 2).Render(content)
 		return lipgloss.Place(v.width, v.height, lipgloss.Center, lipgloss.Center, box)
 	}
 	return v.list.View()

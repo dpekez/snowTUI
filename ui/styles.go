@@ -7,37 +7,38 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const appName = "❄  ServiceNow TUI"
+const appName = "ServiceNow TUI"
 
-// Farbpalette
+// Colors
 var (
-	purple      = lipgloss.Color("#7C3AED")
-	darkPurple  = lipgloss.Color("#4C1D95")
-	green       = lipgloss.Color("#10B981")
-	red         = lipgloss.Color("#EF4444")
-	yellow      = lipgloss.Color("#F59E0B")
-	gray        = lipgloss.Color("#6B7280")
-	lightGray   = lipgloss.Color("#D1D5DB")
-	white       = lipgloss.Color("#F9FAFB")
-	surfaceBg   = lipgloss.Color("#1F2937")
-	borderClr   = lipgloss.Color("#374151")
+	purple     = lipgloss.Color("#7C3AED")
+	darkPurple = lipgloss.Color("#4C1D95")
+	green      = lipgloss.Color("#10B981")
+	darkGreen  = lipgloss.Color("#06402B")
+	red        = lipgloss.Color("#EF4444")
+	yellow     = lipgloss.Color("#F59E0B")
+	gray       = lipgloss.Color("#6B7280")
+	lightGray  = lipgloss.Color("#D1D5DB")
+	white      = lipgloss.Color("#F9FAFB")
+	surfaceBg  = lipgloss.Color("#1F2937")
+	borderClr  = lipgloss.Color("#374151")
 )
 
 var (
 	headerStyle = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(white).
-			Background(purple).
+			Background(green).
 			Padding(0, 2)
 
 	breadcrumbStyle = lipgloss.NewStyle().
 			Foreground(lightGray).
-			Background(darkPurple).
+			Background(darkGreen).
 			Padding(0, 2)
 
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(purple)
+			Foreground(green)
 
 	subtitleStyle = lipgloss.NewStyle().
 			Foreground(gray)
@@ -45,7 +46,7 @@ var (
 	selectedItemStyle = lipgloss.NewStyle().
 				Bold(true).
 				Foreground(white).
-				Background(purple).
+				Background(green).
 				Padding(0, 1)
 
 	errorStyle = lipgloss.NewStyle().
@@ -64,7 +65,7 @@ var (
 			Padding(0, 1)
 
 	keyStyle = lipgloss.NewStyle().
-			Foreground(purple).
+			Foreground(green).
 			Bold(true)
 
 	boxStyle = lipgloss.NewStyle().
@@ -73,11 +74,11 @@ var (
 			Padding(1, 2)
 
 	loadingStyle = lipgloss.NewStyle().
-			Foreground(purple).
+			Foreground(green).
 			Bold(true)
 
 	fieldKeyStyle = lipgloss.NewStyle().
-			Foreground(purple).
+			Foreground(green).
 			Bold(true)
 
 	fieldValStyle = lipgloss.NewStyle().

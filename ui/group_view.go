@@ -2,11 +2,13 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 
 	"snowtui/api"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -16,10 +18,11 @@ import (
 type groupMode int
 
 const (
-	groupPickingColumn groupMode = iota // Select column
-	groupLoading                        // Loading statistics
-	groupBrowsing                       // Display group results
-	groupError                          // Error state
+	groupPickingColumn      groupMode = iota // Select column
+	groupPickingColumnInput                  // Enter custom column name
+	groupLoading                             // Loading statistics
+	groupBrowsing                            // Display group results
+	groupError                               // Error state
 )
 
 // ── List items ────────────────────────────────────────────────────────────────
@@ -61,11 +64,12 @@ type GroupView struct {
 	mode      groupMode
 	client    *api.Client
 	tableName string
-	baseQuery string     // Active filter from calling ListView (without sort)
-	groupCol  string     // Selected group column
-	colNames  []string   // Visible columns for picker
-	colList   list.Model // Column picker
-	groupList list.Model // Group results
+	baseQuery string          // Active filter from calling ListView (without sort)
+	groupCol  string          // Selected group column
+	colNames  []string        // Visible columns for picker
+	colList   list.Model      // Column picker
+	colInput  textinput.Model // Custom column name input
+	groupList list.Model      // Group results
 	sp        spinner.Model
 	err       error
 	width     int
@@ -82,13 +86,22 @@ func NewGroupView(client *api.Client, tableName, baseQuery string, colNames []st
 		colItems[i] = colPickerItem{col: col}
 	}
 	colList := list.New(colItems, delegate, 0, 0)
-	colList.Title = fmt.Sprintf("Select column  (%d available)", len(colNames))
+	colList.Title = fmt.Sprintf("Select column  (%d available, ctrl+n → custom field)", len(colNames))
 	colList.Styles.Title = titleStyle.Copy()
 	colList.Styles.TitleBar = lipgloss.NewStyle()
 	colList.SetShowStatusBar(false)
 	colList.SetFilteringEnabled(false)
 	colList.SetShowHelp(false)
 	colList.KeyMap.Quit.SetEnabled(false)
+
+	// ── Custom column input ───────────────────────────────────────────────────
+	colInput := textinput.New()
+	colInput.Placeholder = "e.g.  assignment_group  or  u_custom_field"
+	colInput.CharLimit = 100
+	colInput.Width = 50
+	colInput.Prompt = "▶  "
+	colInput.PromptStyle = lipgloss.NewStyle().Foreground(green)
+	colInput.TextStyle = lipgloss.NewStyle().Foreground(white)
 
 	// ── Group results list ────────────────────────────────────────────────────
 	groupList := list.New(nil, delegate, 0, 0)
@@ -111,6 +124,7 @@ func NewGroupView(client *api.Client, tableName, baseQuery string, colNames []st
 		baseQuery: baseQuery,
 		colNames:  colNames,
 		colList:   colList,
+		colInput:  colInput,
 		groupList: groupList,
 		sp:        sp,
 	}
@@ -120,9 +134,9 @@ func NewGroupView(client *api.Client, tableName, baseQuery string, colNames []st
 func newGroupDelegate() list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 	d.Styles.SelectedTitle = d.Styles.SelectedTitle.
-		Foreground(white).Background(purple).BorderForeground(purple)
+		Foreground(white).Background(green).BorderForeground(green)
 	d.Styles.SelectedDesc = d.Styles.SelectedDesc.
-		Foreground(lightGray).Background(purple).BorderForeground(purple)
+		Foreground(lightGray).Background(green).BorderForeground(green)
 	d.Styles.NormalTitle = d.Styles.NormalTitle.Foreground(lightGray)
 	d.Styles.NormalDesc = d.Styles.NormalDesc.Foreground(gray)
 	return d
@@ -190,9 +204,30 @@ func (v GroupView) Update(msg tea.Msg) (GroupView, tea.Cmd) {
 					v.mode = groupLoading
 					return v, tea.Batch(v.sp.Tick, v.doFetchStats())
 				}
+			case "ctrl+n":
+				v.mode = groupPickingColumnInput
+				return v, v.colInput.Focus()
 			case "esc":
 				// Verlasse den GroupView → zurück zur ListView
 				return v, func() tea.Msg { return goBackMsg{} }
+			}
+
+		case groupPickingColumnInput:
+			switch msg.String() {
+			case "esc":
+				v.mode = groupPickingColumn
+				v.colInput.Blur()
+				v.colInput.SetValue("")
+				return v, nil
+			case "enter":
+				col := strings.TrimSpace(v.colInput.Value())
+				if col != "" {
+					v.colInput.SetValue("")
+					v.colInput.Blur()
+					v.groupCol = col
+					v.mode = groupLoading
+					return v, tea.Batch(v.sp.Tick, v.doFetchStats())
+				}
 			}
 
 		case groupBrowsing:
@@ -231,6 +266,8 @@ func (v GroupView) Update(msg tea.Msg) (GroupView, tea.Cmd) {
 	switch v.mode {
 	case groupPickingColumn:
 		v.colList, cmd = v.colList.Update(msg)
+	case groupPickingColumnInput:
+		v.colInput, cmd = v.colInput.Update(msg)
 	case groupBrowsing:
 		v.groupList, cmd = v.groupList.Update(msg)
 	}
@@ -291,6 +328,16 @@ func (v GroupView) View() string {
 	case groupBrowsing:
 		return v.groupList.View()
 
+	case groupPickingColumnInput:
+		content := lipgloss.JoinVertical(lipgloss.Left,
+			titleStyle.Render("Enter custom field"),
+			subtitleStyle.Render("Enter to confirm  ·  Esc to cancel"),
+			"",
+			v.colInput.View(),
+		)
+		box := boxStyle.Copy().Width(v.width / 2).Render(content)
+		return lipgloss.Place(v.width, v.height, lipgloss.Center, lipgloss.Center, box)
+
 	default: // groupPickingColumn
 		return v.colList.View()
 	}
@@ -301,10 +348,16 @@ func (v *GroupView) SetSize(w, h int) {
 	v.height = h
 	v.colList.SetSize(w, h)
 	v.groupList.SetSize(w, h)
+	if w > 12 {
+		v.colInput.Width = w/2 - 8
+	}
 }
 
 // ActiveGroupCol returns the currently selected grouping column.
 func (v GroupView) ActiveGroupCol() string { return v.groupCol }
 
-// IsPickingColumn returns true if no column has been selected yet.
-func (v GroupView) IsPickingColumn() bool { return v.mode == groupPickingColumn }
+// IsPickingColumn returns true if no column has been selected yet
+// (either browsing the list of predefined columns or entering a custom one).
+func (v GroupView) IsPickingColumn() bool {
+	return v.mode == groupPickingColumn || v.mode == groupPickingColumnInput
+}

@@ -152,7 +152,7 @@ func NewListView(client *api.Client, tableName string, columns []string) ListVie
 	ti.Placeholder = "ServiceNow query  (e.g., state=1^priority=1^active=true)"
 	ti.CharLimit = 300
 	ti.Prompt = "  🔍  "
-	ti.PromptStyle = lipgloss.NewStyle().Foreground(purple)
+	ti.PromptStyle = lipgloss.NewStyle().Foreground(green)
 	ti.TextStyle = lipgloss.NewStyle().Foreground(white)
 
 	return ListView{
@@ -450,10 +450,10 @@ func (v ListView) View() string {
 			lipgloss.JoinVertical(lipgloss.Left,
 				titleStyle.Render("ServiceNow Query"),
 				subtitleStyle.Render(
-					"state=1^priority=1 joins conditions\n"+
-						"state=1^ORpriority=1 or conditions\n"+
-						"short_description!=null filters empty values\n"+
-						"Enter = search   Esc = cancel"),
+					"state=1^priority=1 -- joins conditions\n"+
+						"state=1^ORpriority=1 -- or conditions\n"+
+						"short_description!=null -- filters empty values\n\n"+
+						"Enter to search  ·  Esc to cancel"),
 				"",
 				v.search.View(),
 				"",
@@ -631,11 +631,11 @@ func (v *ListView) rebuildTable() {
 		BorderStyle(lipgloss.NormalBorder()).
 		BorderForeground(borderClr).
 		BorderBottom(true).
-		Foreground(purple).
+		Foreground(green).
 		Bold(true)
 	s.Selected = s.Selected.
 		Foreground(white).
-		Background(purple).
+		Background(green).
 		Bold(true)
 	s.Cell = s.Cell.Foreground(lightGray)
 

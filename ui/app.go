@@ -300,7 +300,7 @@ func (m AppModel) renderFooter() string {
 		if m.groupView.IsPickingColumn() {
 			keys = [][2]string{
 				{"↑/↓", "select column"}, {"enter", "group"},
-				{"esc", "back"},
+				{"ctrl+n", "custom field"}, {"esc", "back"},
 			}
 		} else {
 			keys = [][2]string{

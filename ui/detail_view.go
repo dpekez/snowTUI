@@ -199,7 +199,7 @@ func newFieldInput(placeholder, value string, width int) textinput.Model {
 	ti.Placeholder = placeholder
 	ti.CharLimit = 500
 	ti.Prompt = "▶  "
-	ti.PromptStyle = lipgloss.NewStyle().Foreground(purple)
+	ti.PromptStyle = lipgloss.NewStyle().Foreground(green)
 	ti.TextStyle = lipgloss.NewStyle().Foreground(white)
 	if width > 0 {
 		ti.Width = width

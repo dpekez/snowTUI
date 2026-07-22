@@ -2,12 +2,46 @@ package ui
 
 import (
 	"fmt"
+	"strings"
 
 	"snowtui/config"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+)
+
+// serviceNowLogoArt is an ASCII rendition of the ServiceNow ring logo.
+var serviceNowLogoArt = []string{
+	``,
+	`            ##################`,
+	`        ##########################`,
+	`      ##############################`,
+	`    ##################################`,
+	`   ###############      ###############`,
+	`  ############              ############`,
+	` ###########                  ###########`,
+	` ##########                    ##########`,
+	` ##########                    ##########`,
+	` ##########                    ##########`,
+	`  ##########                  ##########`,
+	`  ############              ############`,
+	`   ###############      ###############`,
+	`    ###############    ###############`,
+	`      #############    #############`,
+	`        ##########      ##########`,
+	`            #####        #####`,
+	``,
+}
+
+var serviceNowLogoStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#10B981"))
+
+// artPaneWidth is the fixed width reserved for the logo pane.
+// minSplitWidth is the total terminal width below which the split
+// collapses back to a single, full-width list.
+const (
+	artPaneWidth  = 45
+	minSplitWidth = 90
 )
 
 // instanceItem implements the list.DefaultItem interface.
@@ -43,9 +77,9 @@ func NewInstanceView(instances []config.Instance) InstanceView {
 
 	d := list.NewDefaultDelegate()
 	d.Styles.SelectedTitle = d.Styles.SelectedTitle.
-		Foreground(white).Background(purple).BorderForeground(purple)
+		Foreground(white).Background(green).BorderForeground(green)
 	d.Styles.SelectedDesc = d.Styles.SelectedDesc.
-		Foreground(lightGray).Background(purple).BorderForeground(purple)
+		Foreground(lightGray).Background(green).BorderForeground(green)
 	d.Styles.NormalTitle = d.Styles.NormalTitle.Foreground(lightGray)
 	d.Styles.NormalDesc = d.Styles.NormalDesc.Foreground(gray)
 
@@ -83,11 +117,32 @@ func (v InstanceView) Update(msg tea.Msg) (InstanceView, tea.Cmd) {
 }
 
 func (v InstanceView) View() string {
-	return v.list.View()
+	listView := v.list.View()
+	if v.width < minSplitWidth {
+		return listView
+	}
+
+	art := serviceNowLogoStyle.Render(strings.Join(serviceNowLogoArt, "\n"))
+	artPane := lipgloss.NewStyle().
+		Width(artPaneWidth).
+		Height(v.height).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render(art)
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, listView, artPane)
 }
 
 func (v *InstanceView) SetSize(w, h int) {
 	v.width = w
 	v.height = h
-	v.list.SetSize(w, h)
+	v.list.SetSize(v.listWidth(), h)
+}
+
+// listWidth returns the width available to the instance list, shrinking it
+// to make room for the logo pane once the terminal is wide enough to split.
+func (v InstanceView) listWidth() int {
+	if v.width >= minSplitWidth {
+		return v.width - artPaneWidth
+	}
+	return v.width
 }

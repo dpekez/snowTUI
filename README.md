@@ -1,11 +1,11 @@
-# ❄ ServiceNow TUI
+# ServiceNow TUI
 
-A Terminal User Interface app for accessing the ServiceNow Table API – built with [Bubble Tea](https://github.com/charmbracelet/bubbletea).
+A Text User Interface applicatoin for accessing the ServiceNow Table API – built with [Bubble Tea](https://github.com/charmbracelet/bubbletea).
 
 Tired of browser tabs? Now you can browse ServiceNow incidents from your terminal like it's 1985 and you're *not* dealing with Chrome eating up your RAM.
 
 ```
-┌─ ❄  ServiceNow TUI ───────────────────────────────────────────────────────┐
+┌──  ServiceNow TUI ────────────────────────────────────────────────────────┐
 │  dev  ›  incident                                                         │
 ├───────────────────────────────────────────────────────────────────────────┤
 │  Table: incident  │  1243 records  │  Page 1/63                           │
@@ -28,6 +28,7 @@ Tired of browser tabs? Now you can browse ServiceNow incidents from your termina
 - **Table Browser** – List of 18 pre-configured tables
 - **Choose Table** – Open any table not pre-configured through custom input
 - **Record List** – Paginated table view with configurable column selection
+- **Group By** – Group records by a specific field
 - **ServiceNow Query** – Enter query syntax directly (e.g., `state=1^priority=1`)
 - **Detail View** – Browse and edit every field of a record
 - **Detail View Important Fields** – Pick specific fields to display on top via config
@@ -40,6 +41,8 @@ Tired of browser tabs? Now you can browse ServiceNow incidents from your termina
 
 - Go 1.22+
 - Access to a ServiceNow instance
+- Auth credentials (Basic Auth or API key)
+- Access to Table API and Aggregate API
 
 ## Installation
 
@@ -142,10 +145,21 @@ Table Fields:
 | `/`          | Enter ServiceNow query    |
 | `n` / `→`    | Next page                 |
 | `p` / `←`    | Previous page             |
+| `Shift+[A-Z]`| Sort by selected column   |
 | `c`          | Create new record         |
 | `d`          | Delete selected record (y/n confirm) |
 | `r`          | Reload                    |
+| `g`          | Open group view           |
 | `Esc`        | Back                      |
+
+### Group View
+| Key        | Action                    |
+|------------|---------------------------|
+| `↑ / ↓`    | Select column / group     |
+| `Enter`    | Group by column / apply group filter |
+| `Ctrl+N`   | Group by a custom field name |
+| `/`        | Filter group results      |
+| `Esc`      | Back                      |
 
 ### Detail View
 | Key         | Action                                              |
@@ -179,7 +193,7 @@ nameSTARTSWITHtest              → Name starts with "test"
 
 ## API Reference
 
-snowtui talks only to the ServiceNow Table API and Stats API, via `api/client.go`. Every request and header sent by the app is listed below.
+snowtui talks only to the ServiceNow Table API and Aggregate API (Stats API), via `api/client.go`. Every request and header sent by the app is listed below.
 
 ### Endpoints
 
@@ -190,7 +204,7 @@ snowtui talks only to the ServiceNow Table API and Stats API, via `api/client.go
 | `POST`   | `/api/now/table/{table}` | `CreateRecord` | Create a new record |
 | `PATCH`  | `/api/now/table/{table}/{sys_id}` | `UpdateRecord` | Partially update a record |
 | `DELETE` | `/api/now/table/{table}/{sys_id}` | `DeleteRecord` | Delete a record |
-| `GET`    | `/api/now/stats/{table}` | `GetGroupStats` | Grouped counts used for the group-by view; some instances require the `stats_api` or `itil` role, returning HTTP 403 otherwise |
+| `GET`    | `/api/now/stats/{table}` | `GetGroupStats` | Grouped counts used for the group-by view; some instances require the Aggregate Api `stats_api` or `itil` role, returning HTTP 403 otherwise |
 
 ### Query Parameters
 
