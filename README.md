@@ -2,7 +2,7 @@
 
 A Text User Interface applicatoin for accessing the ServiceNow Table API – built with [Bubble Tea](https://github.com/charmbracelet/bubbletea).
 
-Tired of browser tabs? Now you can browse ServiceNow incidents from your terminal like it's 1985 and you're *not* dealing with Chrome eating up your RAM.
+Tired of browser tabs? Now you can browse ServiceNow incidents from your terminal like it's 1985 and *not* deal anymore with Chrome eating up your RAM.
 
 ```
 ┌──  ServiceNow TUI ────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@ Tired of browser tabs? Now you can browse ServiceNow incidents from your termina
 
 - **Instance Selection** – Manage multiple ServiceNow instances via config
 - **Table Browser** – List of 18 pre-configured tables
-- **Choose Table** – Open any table not pre-configured through custom input
+- **Choose Table** – Open any table through custom input
 - **Record List** – Paginated table view with configurable column selection
 - **Group By** – Group records by a specific field
 - **ServiceNow Query** – Enter query syntax directly (e.g., `state=1^priority=1`)
-- **Detail View** – Browse and edit every field of a record
+- **Detail View** – Browse and edit any field of a record
 - **Detail View Important Fields** – Pick specific fields to display on top via config
 - **Full Data** – Uses `sysparm_display_value=true` for human-readable display values
 - **Record Creation** – Start a blank record from the list view, fill in any field (including arbitrary ones beyond the configured set), and submit
@@ -40,9 +40,9 @@ Tired of browser tabs? Now you can browse ServiceNow incidents from your termina
 ## Requirements
 
 - Go 1.22+
-- Access to a ServiceNow instance
-- Auth credentials (Basic Auth or API key)
-- Access to Table API and Aggregate API
+- Access to a ServiceNow instance via Basic Auth or API Key
+- REST API Policy for Table and Aggregate API if you're using API Key
+- `x-sn-apikey` header configured for API key auth
 
 ## Installation
 
@@ -68,7 +68,7 @@ go build -o snowtui .
 
 ## Configuration
 
-The `config.yaml` is located in the current directory by default:
+An example config `config.yaml.example` is located in the repository.
 
 ```yaml
 instances:
@@ -183,9 +183,9 @@ field by name before submitting — nothing is restricted to that list.
 Use native ServiceNow Encoded Query syntax in the search prompt:
 
 ```
-state=1                         → All open incidents
-state=1^priority=1              → Critical open incidents  
-assigned_toISEMPTY              → Unassigned records
+state=1                         → Exact match queries
+state=1^priority=1              → AND queries  
+assigned_toISEMPTY              → Filter for empty fields
 sys_updated_on>=2024-01-01      → Updated since Jan 1, 2024
 short_descriptionLIKEvpn        → Short description contains "vpn"
 nameSTARTSWITHtest              → Name starts with "test"
@@ -193,7 +193,7 @@ nameSTARTSWITHtest              → Name starts with "test"
 
 ## API Reference
 
-snowtui talks only to the ServiceNow Table API and Aggregate API (Stats API), via `api/client.go`. Every request and header sent by the app is listed below.
+snowtui talks to the ServiceNow Table API and Aggregate API (Stats API), via `api/client.go`. Every request and header sent by the app is listed below.
 
 ### Endpoints
 
@@ -261,9 +261,11 @@ snowtui/
 
 ## Known Issues
 
-- top header disappears if an error banner is displayed
+- top header disappears/UI layout is broken if confirmation dialog is answered with no
 - list view column sort does not work for some fields
+- terminal widths != 115 result in buggy UI layout
 
 ## Future Features
 
+- two-lane recordview
 - customizable/dynamic pagination sizes
