@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const appName = "ServiceNow TUI"
+const appName = "snowTUI"
 
 // Colors
 var (

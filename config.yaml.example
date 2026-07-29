@@ -1,4 +1,4 @@
-# ServiceNow TUI – Config File
+# snowTUI – Config File
 instances:
   - name: "PDI"
     url: "https://dev123456.service-now.com"

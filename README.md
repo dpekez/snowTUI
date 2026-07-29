@@ -1,11 +1,11 @@
-# ServiceNow TUI
+# TUI for ServiceNow
 
-A Text User Interface applicatoin for accessing the ServiceNow Table API – built with [Bubble Tea](https://github.com/charmbracelet/bubbletea).
+A Text User Interface application for accessing the ServiceNow Table API – built with [Bubble Tea](https://github.com/charmbracelet/bubbletea). Full CRUD operations supported.
 
 Tired of browser tabs? Now you can browse ServiceNow incidents from your terminal like it's 1985 and *not* deal anymore with Chrome eating up your RAM.
 
 ```
-┌──  ServiceNow TUI ────────────────────────────────────────────────────────┐
+┌──  snowTUI ────────────────────────────────────────────────────────┐
 │  dev  ›  incident                                                         │
 ├───────────────────────────────────────────────────────────────────────────┤
 │  Table: incident  │  1243 records  │  Page 1/63                           │
