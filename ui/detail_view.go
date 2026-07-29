@@ -91,16 +91,24 @@ func NewDetailView(client *api.Client, table string, record map[string]interface
 
 // NewDetailViewForCreate creates a DetailView in "create" mode: a blank
 // record seeded with empty values for the table's configured important
-// fields (so they're immediately visible/editable), with no network fetch.
-// Additional arbitrary fields can be added via the 'a' key before creating.
-func NewDetailViewForCreate(client *api.Client, table string, importantFields []string) DetailView {
+// fields (so they're immediately visible/editable) plus every other field
+// name in sampleFields (typically taken from already-loaded records of the
+// table), shown in an "All Fields" section below — mirroring the existing-
+// record detail view. No network fetch. Additional arbitrary fields can
+// still be added via the 'a' key before creating.
+func NewDetailViewForCreate(client *api.Client, table string, importantFields []string, sampleFields []string) DetailView {
 	sp := spinner.New()
 	sp.Spinner = spinner.Dot
 	sp.Style = loadingStyle
 
-	record := make(map[string]interface{}, len(importantFields))
+	record := make(map[string]interface{}, len(importantFields)+len(sampleFields))
 	for _, f := range importantFields {
 		record[f] = ""
+	}
+	for _, f := range sampleFields {
+		if _, ok := record[f]; !ok {
+			record[f] = ""
+		}
 	}
 
 	v := DetailView{

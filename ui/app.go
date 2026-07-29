@@ -157,7 +157,14 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case newRecordRequestedMsg:
 		tblCfg, _ := m.config.Table(m.selectedTable)
-		m.detailView = NewDetailViewForCreate(m.client, m.selectedTable, tblCfg.Record.ImportantFields)
+		var sampleFields []string
+		if len(m.listView.records) > 0 {
+			sampleFields = make([]string, 0, len(m.listView.records[0]))
+			for k := range m.listView.records[0] {
+				sampleFields = append(sampleFields, k)
+			}
+		}
+		m.detailView = NewDetailViewForCreate(m.client, m.selectedTable, tblCfg.Record.ImportantFields, sampleFields)
 		m.detailView.SetSize(m.width, m.contentHeight())
 		m.state = stateRecordDetail
 		return m, m.detailView.Init()
