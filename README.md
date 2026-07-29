@@ -1,8 +1,8 @@
 # TUI for ServiceNow
 
-A Text User Interface application for accessing the ServiceNow Table API – built with [Bubble Tea](https://github.com/charmbracelet/bubbletea). Full CRUD operations supported.
+A Text User Interface application for accessing the ServiceNow Table API – built with [Bubble Tea](https://github.com/charmbracelet/bubbletea). Supports full CRUD operations.
 
-Tired of browser tabs? Now you can browse ServiceNow incidents from your terminal like it's 1985 and *not* deal anymore with Chrome eating up your RAM.
+Tired of browser tabs? Want to lookup your favourite table u_totally_not_tech_debt just real quick? Now you can do exactly that from your terminal like it's 1985 and *not* deal with Chrome eating up your RAM anymore.
 
 ```
 ┌──  snowTUI ────────────────────────────────────────────────────────┐
@@ -115,8 +115,23 @@ Table Fields:
 |--------------|-------------------------------------------------------------------|
 | `name`       | ServiceNow table name                                             |
 | `description`| Description of the table                                          |
+| `options`    | Array of behavior flags; currently only `wildcard` is supported   |
 | `list`       | Columns to display in the list view                               |
 | `record`     | Fields to display in the record important fields view             |
+
+A table's `list.columns` / `record.important_fields` are resolved in this
+order:
+1. An exact match on `name`.
+2. The longest-prefix match among entries with `options: ["wildcard"]` whose
+   `name` is a prefix of the table being viewed (e.g. an entry named
+   `"cmdb_ci"` with the `wildcard` option also matches `cmdb_ci_computer`,
+   `cmdb_ci_server`, etc. if those have no exact entry of their own).
+3. The reserved `"_default"` entry, if configured — a catch-all fallback
+   applied to any table that matched neither of the above. It is never shown
+   in the table browser.
+
+If none of these match, list columns fall back to the record's own fields
+and the detail view still shows every field, per the note above.
 
 ## Keyboard Shortcuts
 

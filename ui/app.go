@@ -108,7 +108,7 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case instanceSelectedMsg:
 		m.selectedInstance = msg.instance
 		m.client = api.NewClient(msg.instance.URL, msg.instance.Username, msg.instance.Password, msg.instance.APIKey)
-		m.tableView = NewTableView(m.config.Tables)
+		m.tableView = NewTableView(m.config.BrowsableTables())
 		m.tableView.SetSize(m.width, m.contentHeight())
 		m.state = stateTableSelect
 		return m, m.tableView.Init()
@@ -336,7 +336,7 @@ func (m AppModel) handleGoBack() (tea.Model, tea.Cmd) {
 			m.state = stateGroupView
 		} else {
 			// From a normal list → back to table selection
-			m.tableView = NewTableView(m.config.Tables)
+			m.tableView = NewTableView(m.config.BrowsableTables())
 			m.tableView.SetSize(m.width, m.contentHeight())
 			m.state = stateTableSelect
 			return m, m.tableView.Init()

@@ -14,7 +14,24 @@ instances:
 # (record.important_fields). Fields not listed here are still visible: list
 # columns fall back to the record's own fields, and the detail view always
 # shows every field beneath the "Important Fields" section.
+#
+# "_default" is a reserved entry (not shown in the table browser) used as a
+# catch-all fallback: any table with no matching entry below uses its
+# list.columns / record.important_fields.
+#
+# A table entry's "options" array can include "wildcard", which treats its
+# name as a prefix: it also matches any table name starting with it when
+# that table has no exact entry of its own (see "cmdb_ci" below, which this
+# way also covers "cmdb_ci_computer", "cmdb_ci_server", etc.).
 tables:
+  - name: "_default"
+    list:
+      columns: ["sys_id", "name", "number", "short_description", "sys_created_by", "sys_updated_by",
+                "sys_created_on", "sys_updated_on"]
+    record:
+      important_fields: ["sys_id", "name", "number", "short_description",
+                         "sys_created_by", "sys_updated_by", "sys_created_on", "sys_updated_on"]
+
   - name: "incident"
     description: "IT incidents and outages"
     list:
@@ -29,6 +46,7 @@ tables:
 
   - name: "cmdb_ci"
     description: "Configuration items"
+    options: ["wildcard"]
     list:
       columns: ["name", "fqdn", "ip_address", "mac_address", "sys_class_name", "operational_status", "category",
                 "location", "assigned_to", "sys_updated_on"]

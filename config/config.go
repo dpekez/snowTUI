@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -51,9 +52,32 @@ type RecordConfig struct {
 type TableConfig struct {
 	Name        string       `yaml:"name"`
 	Description string       `yaml:"description,omitempty"`
+	Options     []string     `yaml:"options,omitempty"`
 	List        ListConfig   `yaml:"list,omitempty"`
 	Record      RecordConfig `yaml:"record,omitempty"`
 }
+
+// hasOption reports whether the table entry has the given option set.
+func (t TableConfig) hasOption(opt string) bool {
+	for _, o := range t.Options {
+		if o == opt {
+			return true
+		}
+	}
+	return false
+}
+
+const (
+	// DefaultTableName is the reserved table entry name used as a catch-all
+	// fallback for list columns and important fields when no exact or
+	// wildcard match is found for a table.
+	DefaultTableName = "_default"
+
+	// TableOptionWildcard, set via a table entry's options, treats its name
+	// as a prefix: it matches any table name starting with it when no exact
+	// entry exists for that table.
+	TableOptionWildcard = "wildcard"
+)
 
 // Config contains all configured instances and tables.
 type Config struct {
@@ -73,14 +97,52 @@ func (cfg Config) ActiveInstances() []Instance {
 	return active
 }
 
-// Table returns the configuration for the given table name, if any.
+// Table returns the configuration to use for the given table name. Lookup
+// order: an exact name match; the longest wildcard-prefix match among
+// entries with the "wildcard" option; the reserved "_default" catch-all
+// entry, if configured.
 func (cfg Config) Table(name string) (TableConfig, bool) {
 	for _, t := range cfg.Tables {
 		if t.Name == name {
 			return t, true
 		}
 	}
+
+	var best TableConfig
+	found := false
+	for _, t := range cfg.Tables {
+		if t.Name == DefaultTableName || !t.hasOption(TableOptionWildcard) {
+			continue
+		}
+		if strings.HasPrefix(name, t.Name) && (!found || len(t.Name) > len(best.Name)) {
+			best = t
+			found = true
+		}
+	}
+	if found {
+		return best, true
+	}
+
+	for _, t := range cfg.Tables {
+		if t.Name == DefaultTableName {
+			return t, true
+		}
+	}
+
 	return TableConfig{}, false
+}
+
+// BrowsableTables returns the configured tables shown in the table browser,
+// excluding the reserved "_default" fallback entry.
+func (cfg Config) BrowsableTables() []TableConfig {
+	var out []TableConfig
+	for _, t := range cfg.Tables {
+		if t.Name == DefaultTableName {
+			continue
+		}
+		out = append(out, t)
+	}
+	return out
 }
 
 // Load reads, parses, and validates the configuration file.
@@ -114,6 +176,11 @@ func (cfg Config) validate() error {
 	for i, tbl := range cfg.Tables {
 		if tbl.Name == "" {
 			return fmt.Errorf("table #%d: 'name' missing", i+1)
+		}
+		for _, opt := range tbl.Options {
+			if opt != TableOptionWildcard {
+				return fmt.Errorf("table %q: unknown option %q", tbl.Name, opt)
+			}
 		}
 	}
 	return nil
