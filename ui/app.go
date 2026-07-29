@@ -318,7 +318,7 @@ func (m AppModel) renderFooter() string {
 	case stateRecordDetail:
 		keys = [][2]string{
 			{"↑/↓", "navigate"}, {"enter", "edit field"},
-			{"s", "save"},
+			{"e", "clear & edit"}, {"s", "save"},
 		}
 		if m.detailView.IsNew() {
 			keys = append(keys, [2]string{"a", "add field"})

@@ -312,6 +312,16 @@ func (v DetailView) Update(msg tea.Msg) (DetailView, tea.Cmd) {
 				}
 				return v, nil
 
+			case "e":
+				if v.cursor >= 0 && v.cursor < len(v.fieldOrder) {
+					key := v.fieldOrder[v.cursor]
+					v.input = newFieldInput(key, "", v.inputWidth())
+					v.mode = detailEditingField
+					v.refreshContent()
+					return v, v.input.Focus()
+				}
+				return v, nil
+
 			case "a":
 				if v.isNew {
 					v.input = newFieldInput("field_name", "", v.inputWidth())
