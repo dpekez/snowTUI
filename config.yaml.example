@@ -55,6 +55,13 @@ tables:
                           "operational_status", "install_status", "location",
                           "assigned_to", "owned_by", "sys_created_on", "sys_updated_on"]
 
+  - name: "em_event"
+    description: "Event Management events"
+    list:
+      columns: ["source", "node", "type", "resource", "metric_name", "severity", "sys_created_on"]
+    record:
+      important_fields: ["source", "node", "type", "resource", "metric_name", "severity", "message_key", "sys_created_on"]
+
   - name: "change_request"
     description: "Change management requests"
     list:

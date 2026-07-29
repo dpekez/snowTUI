@@ -35,8 +35,22 @@ const (
 	actionNone pendingAction = iota
 	actionSave
 	actionCreate
+	actionInsert
 	actionDelete
 )
+
+// insertSystemFields are ServiceNow-managed fields excluded when duplicating
+// a record via actionInsert — the server must assign fresh values for these,
+// so copying them over risks an ACL error or a colliding sys_id/number.
+var insertSystemFields = map[string]bool{
+	"sys_id":         true,
+	"sys_created_on": true,
+	"sys_created_by": true,
+	"sys_updated_on": true,
+	"sys_updated_by": true,
+	"sys_mod_count":  true,
+	"number":         true,
+}
 
 // DetailView displays and edits all fields of a single ServiceNow record. In
 // "create" mode (isNew) it instead builds a brand-new record from scratch.
@@ -233,7 +247,7 @@ func (v DetailView) Update(msg tea.Msg) (DetailView, tea.Cmd) {
 
 	case recordSavedMsg:
 		v.record = msg.record
-		if v.sysID == "" {
+		if v.pendingAction == actionInsert || v.sysID == "" {
 			v.sysID = getStringValue(msg.record, "sys_id")
 		}
 		v.isNew = false
@@ -306,7 +320,7 @@ func (v DetailView) Update(msg tea.Msg) (DetailView, tea.Cmd) {
 				}
 				return v, nil
 
-			case "ctrl+s":
+			case "s":
 				if v.isNew {
 					v.pendingAction = actionCreate
 					v.confirmPrompt = fmt.Sprintf("Create new %s record?", v.table)
@@ -315,6 +329,14 @@ func (v DetailView) Update(msg tea.Msg) (DetailView, tea.Cmd) {
 					v.pendingAction = actionSave
 					v.confirmPrompt = fmt.Sprintf("Save changes to %s?", v.recordLabel())
 					v.mode = detailConfirm
+				}
+				return v, nil
+
+			case "i":
+				if !v.isNew {
+					v.pendingAction = actionInsert
+					v.mode = detailSaving
+					return v, tea.Batch(v.sp.Tick, v.performAction())
 				}
 				return v, nil
 
@@ -443,22 +465,42 @@ func (v DetailView) Update(msg tea.Msg) (DetailView, tea.Cmd) {
 	return v, cmd
 }
 
+// insertFields collects every currently-displayed field (dirty overrides
+// included) for duplicating the record via actionInsert, excluding fields
+// the server must assign fresh values for.
+func (v DetailView) insertFields() map[string]interface{} {
+	fields := make(map[string]interface{}, len(v.fieldOrder))
+	for _, key := range v.fieldOrder {
+		if insertSystemFields[key] {
+			continue
+		}
+		val, _ := v.fieldValue(key)
+		fields[key] = val
+	}
+	return fields
+}
+
 // performAction fires the network request for the pending create/update/
-// delete action and translates the result into a Bubble Tea message.
+// insert/delete action and translates the result into a Bubble Tea message.
 func (v DetailView) performAction() tea.Cmd {
 	client := v.client
 	table := v.table
 	sysID := v.sysID
 	action := v.pendingAction
 
-	fields := make(map[string]interface{}, len(v.dirty))
-	for k, val := range v.dirty {
-		fields[k] = val
+	var fields map[string]interface{}
+	if action == actionInsert {
+		fields = v.insertFields()
+	} else {
+		fields = make(map[string]interface{}, len(v.dirty))
+		for k, val := range v.dirty {
+			fields[k] = val
+		}
 	}
 
 	return func() tea.Msg {
 		switch action {
-		case actionCreate:
+		case actionCreate, actionInsert:
 			rec, err := client.CreateRecord(table, fields)
 			if err != nil {
 				return mutationErrMsg{err: err}
@@ -500,6 +542,8 @@ func (v DetailView) View() string {
 		switch v.pendingAction {
 		case actionCreate:
 			label = "Creating…"
+		case actionInsert:
+			label = "Inserting…"
 		case actionDelete:
 			label = "Deleting…"
 		}
