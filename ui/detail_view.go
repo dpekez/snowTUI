@@ -224,6 +224,8 @@ func (v DetailView) Update(msg tea.Msg) (DetailView, tea.Cmd) {
 			v.record = msg.records[0]
 			v.sysID = getStringValue(v.record, "sys_id")
 		}
+		v.dirty = make(map[string]string)
+		v.saveErr = nil
 		v.mode = detailReady
 		v.buildFieldOrder()
 		v.buildViewport()
@@ -313,6 +315,13 @@ func (v DetailView) Update(msg tea.Msg) (DetailView, tea.Cmd) {
 					v.pendingAction = actionSave
 					v.confirmPrompt = fmt.Sprintf("Save changes to %s?", v.recordLabel())
 					v.mode = detailConfirm
+				}
+				return v, nil
+
+			case "r":
+				if !v.isNew && v.sysID != "" {
+					v.mode = detailLoading
+					return v, tea.Batch(v.sp.Tick, v.fetchFull())
 				}
 				return v, nil
 

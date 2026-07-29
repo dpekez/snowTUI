@@ -5,7 +5,7 @@ A Text User Interface application for accessing the ServiceNow Table API – bui
 Tired of browser tabs? Want to lookup your favourite table u_totally_not_tech_debt just real quick? Now you can do exactly that from your terminal like it's 1985 and *not* deal with Chrome eating up your RAM anymore.
 
 ```
-┌──  snowTUI ────────────────────────────────────────────────────────┐
+┌──  snowTUI ───────────────────────────────────────────────────────────────┐
 │  dev  ›  incident                                                         │
 ├───────────────────────────────────────────────────────────────────────────┤
 │  Table: incident  │  1243 records  │  Page 1/63                           │

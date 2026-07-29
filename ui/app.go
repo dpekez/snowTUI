@@ -323,7 +323,7 @@ func (m AppModel) renderFooter() string {
 		if m.detailView.IsNew() {
 			keys = append(keys, [2]string{"a", "add field"})
 		} else {
-			keys = append(keys, [2]string{"d", "delete"})
+			keys = append(keys, [2]string{"r", "reload"}, [2]string{"d", "delete"})
 		}
 		keys = append(keys, [2]string{"esc", "back"})
 	}
